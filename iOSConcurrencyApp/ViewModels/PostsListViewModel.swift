@@ -9,6 +9,8 @@ import Foundation
 class PostsListViewModel: ObservableObject {
     @Published var posts: [Post] = []
     @Published var isLoading = false
+    @Published var showError = false
+    @Published var errorMessage: String?
     var userId: Int?
     
     func fetchPosts() {
@@ -26,7 +28,8 @@ class PostsListViewModel: ObservableObject {
                         self.posts = posts
                     }
                 case .failure(let error):
-                    print(error.localizedDescription)
+                    self.showError = true
+                    self.errorMessage = error.localizedDescription + "\nPlease contact the developer and provide this error and the steps to reproduce."
                 }
             }
         }
