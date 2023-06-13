@@ -61,6 +61,7 @@
 		749CF9F32A37350500380161 = {
 			isa = PBXGroup;
 			children = (
+				749CFA2D2A387CDB00380161 /* README.md */,
 				749CF9FE2A37350500380161 /* iOSConcurrencyApp */,
 				749CF9FD2A37350500380161 /* Products */,
 			);
@@ -86,7 +87,6 @@
 				749CFA192A373CE200380161 /* ViewModels */,
 				749CFA202A373F3000380161 /* Extensions */,
 				749CFA052A37350600380161 /* Preview Content */,
-				749CFA2D2A387CDB00380161 /* README.md */,
 			);
 			path = iOSConcurrencyApp;
 			sourceTree = "<group>";
