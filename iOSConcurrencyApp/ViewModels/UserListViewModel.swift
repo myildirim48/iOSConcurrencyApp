@@ -8,7 +8,7 @@
 import Foundation
 
 class UserListViewModel: ObservableObject {
-    @Published var users: [User] = []
+    @Published var usersAndPosts: [UserAndPosts] = []
     @Published var isLoading = false
     @Published var showError = false
     @Published var errorMessage: String?
@@ -16,11 +16,19 @@ class UserListViewModel: ObservableObject {
     @MainActor
     func fetchUsers() async {
         let apiService = APIService(urlString: "https://jsonplaceholder.typicode.com/users")
+        let apiService2 = APIService(urlString: "https://jsonplaceholder.typicode.com/posts")
         defer {
             isLoading.toggle()
         }
         do {
-            users = try await apiService.getJSON()
+           async let users: [User] = try await apiService.getJSON()
+            async let posts: [Post] = try await apiService2.getJSON()
+            let (fetchedUsers, fetchedPosts) = await (try users, try posts)
+            for user in fetchedUsers {
+                let userPosts = fetchedPosts.filter { $0.userId == user.id }
+                let newUserAndPosts = UserAndPosts(user: user, posts: userPosts)
+                usersAndPosts.append(newUserAndPosts)
+            }
         } catch {
             showError = true
             errorMessage = error.localizedDescription + "\nPlease contact the developer and provide this error and the steps to reproduce."
@@ -32,9 +40,9 @@ class UserListViewModel: ObservableObject {
 extension UserListViewModel {
     convenience init(forPreview: Bool = false) {
         self.init()
-        
+
         if forPreview {
-            self.users = User.mockUsers
+            self.usersAndPosts = UserAndPosts.mockUserAndPosts
         }
     }
 }
