@@ -37,9 +37,9 @@ struct PostsListView: View {
             .navigationTitle("Posts")
             .navigationBarTitleDisplayMode(.inline)
             .listStyle(.plain)
-            .onAppear {
+            .task {
                 viewModel.userId = userId
-                viewModel.fetchPosts()
+                await viewModel.fetchPosts()
             }
         }
     

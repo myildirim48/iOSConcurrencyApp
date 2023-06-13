@@ -10,39 +10,32 @@ struct APIService {
     let urlString: String
     
     func getJSON<T: Codable>(dateDecodingStrategy:JSONDecoder.DateDecodingStrategy = .deferredToDate,
-                              keyDecodingStrategy: JSONDecoder.KeyDecodingStrategy = .useDefaultKeys,
-                             completion: @escaping(Result<T, APIError>) -> Void) {
-        guard let url = URL(string: urlString) else {
-            completion(.failure(.invalidUrl))
-            return
-        }
+                             keyDecodingStrategy: JSONDecoder.KeyDecodingStrategy = .useDefaultKeys) async throws -> T {
         
-        URLSession.shared.dataTask(with: url) { data, response, error in
+        guard let url = URL(string: urlString) else { throw APIError.invalidUrl }
+        
+        do {
+            let (data, response) = try await URLSession.shared.data(from: url)
+            
             guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-                completion(.failure(.invalidResponseStatus))
-                return
+                throw APIError.invalidResponseStatus
             }
             
-            guard error == nil else {
-                completion(.failure(.dataTaskError(error!.localizedDescription)))
-                return
-            }
-            
-            guard let data else {
-                completion(.failure(.corruptData))
-                return
-            }
             let decoder = JSONDecoder()
             decoder.dateDecodingStrategy = dateDecodingStrategy
             decoder.keyDecodingStrategy = keyDecodingStrategy
+            
             do {
                 let decodedData = try decoder.decode(T.self, from: data)
-                completion(.success(decodedData))
+                return decodedData
             } catch {
-                completion(.failure(.decodingError(error.localizedDescription)))
+                throw APIError.decodingError(error.localizedDescription)
             }
         }
-        .resume()
+        catch {
+            throw APIError.dataTaskError(error.localizedDescription)
+        }
     }
 }
+
 
